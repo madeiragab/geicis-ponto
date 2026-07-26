@@ -1,0 +1,20 @@
+Olá, {{ full_name }}!
+
+Esta é uma lembrança automática do GEICIS Ponto sobre a semana de
+{{ week_start|date:"d/m/Y" }} a {{ week_end|date:"d/m/Y" }}.
+
+  Horas registradas na semana ... {{ hours_logged }}h
+  Mínimo semanal ............... {{ minimum_required }}h
+  Faltaram ..................... {{ shortfall }}h
+
+No total do seu estágio você já tem {{ total_hours }}h das {{ required_hours }}h
+necessárias, então ainda faltam {{ remaining_hours }}h.
+
+Se você bateu a entrada e esqueceu de bater a saída, o registro fica em aberto e
+não entra na contagem. Fale com um professor para corrigir o ponto.
+
+Acompanhe suas horas em {{ frontend_url }}
+
+--
+GEICIS — Grupo de Estudos em Infraestrutura Computacional e Impacto Social
+Esta mensagem foi enviada automaticamente. Não é necessário responder.
