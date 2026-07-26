@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+venv/
+env/
+.venv/
+__pycache__/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Banco local e uploads
+*.sqlite3
+media/
+staticfiles/
