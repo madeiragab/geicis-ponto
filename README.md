@@ -8,9 +8,45 @@ and emails whoever falls short of the weekly minimum every Friday at 23:59.
 
 ## Status
 
-**Design phase.** This repository currently contains documentation and diagrams
-only. No code has been written yet — that is intentional: the domain model and
-the API contract are settled first, so implementation has nothing left to guess.
+**Working.** Backend and frontend are implemented against the design below, with
+52 passing backend tests. The domain model and the API contract were settled in
+`docs/` before any code was written, so implementation had nothing left to guess.
+
+## Running it locally
+
+Backend — Django on `:8000`:
+
+```bash
+cd backend && python -m venv venv && venv/Scripts/pip install -r requirements.txt && venv/Scripts/python manage.py migrate && venv/Scripts/python manage.py runserver
+```
+
+Frontend — Vite on `:5173`, proxying `/api` to the backend:
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+Demo data (refuses to run unless `DEBUG=True`):
+
+```bash
+cd backend && venv/Scripts/python manage.py seed_demo
+```
+
+That creates three placements, two professors, and seven students with eight
+weeks of backdated hours. Logins are `coord@geicis.br`, `ana.correia@geicis.br`
+and `maria.souza@geicis.br`, all with the password `GeicisDemo!2026`.
+
+The weekly job, which cron runs at `59 23 * * 5`:
+
+```bash
+cd backend && venv/Scripts/python manage.py send_weekly_alerts --dry-run
+```
+
+Tests:
+
+```bash
+cd backend && venv/Scripts/python manage.py test apps
+```
 
 ## Stack
 
@@ -58,10 +94,14 @@ stay reviewable in diffs.
 
 ## Roadmap
 
-1. ~~Domain modeling and documentation~~ ← you are here
-2. Backend: models, migrations, admin
-3. Backend: authentication and the time-entry endpoints
-4. Backend: ranking, summaries, weekly alert command
-5. Frontend: authentication, clock-in/out screen, ranking
-6. Frontend: professor and coordinator dashboards
-7. Deployment
+1. ~~Domain modeling and documentation~~
+2. ~~Backend: models, migrations, admin~~
+3. ~~Backend: authentication and the time-entry endpoints~~
+4. ~~Backend: ranking, summaries, weekly alert command~~
+5. ~~Frontend: authentication, clock-in/out screen, ranking~~
+6. ~~Frontend: professor and coordinator dashboards~~
+7. Deployment ← you are here
+
+Deployment still needs a host, a PostgreSQL instance, real SMTP credentials, and
+the cron entry. Nothing in the code assumes SQLite or the console mail backend —
+both are read from the environment.
