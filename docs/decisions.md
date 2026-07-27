@@ -1,5 +1,7 @@
 # Architectural Decisions
 
+🇧🇷 [Português](pt-br/decisions.md) | 🇺🇸 **English**
+
 The significant choices made while designing the system, and why. Each records
 what was rejected, because the rejected option is usually the interesting half.
 

@@ -1,5 +1,7 @@
 # State Diagrams
 
+🇧🇷 [Português](../pt-br/diagrams/state-diagram.md) | 🇺🇸 **English**
+
 ## TimeEntry
 
 An entry has two real states. The third is a flag, not a state — an adjusted

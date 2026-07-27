@@ -1,5 +1,7 @@
 # API Reference
 
+🇧🇷 [Português](pt-br/api.md) | 🇺🇸 **English**
+
 Base URL: `/api/`
 All requests and responses are JSON. All timestamps are ISO 8601 with offset
 (`2026-07-24T14:03:00-03:00`). All hour values are decimal numbers with two

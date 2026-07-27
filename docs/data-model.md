@@ -1,5 +1,7 @@
 # Data Model
 
+🇧🇷 [Português](pt-br/data-model.md) | 🇺🇸 **English**
+
 Every entity, field, and constraint. The visual counterpart is
 [diagrams/er-diagram.md](diagrams/er-diagram.md).
 

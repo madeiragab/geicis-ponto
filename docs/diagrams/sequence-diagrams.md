@@ -1,5 +1,7 @@
 # Sequence Diagrams
 
+🇧🇷 [Português](../pt-br/diagrams/sequence-diagrams.md) | 🇺🇸 **English**
+
 The four flows that were modeled before implementation.
 
 ---

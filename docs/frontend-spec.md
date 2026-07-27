@@ -1,5 +1,7 @@
 # Frontend Specification
 
+🇧🇷 [Português](pt-br/frontend-spec.md) | 🇺🇸 **English**
+
 React + Vite + Tailwind CSS, the same stack as the `social-network` frontend
 (axios, lucide-react, clsx, tailwind-merge). A single-page app that consumes the
 REST API and renders nothing server-side.
