@@ -6,6 +6,15 @@ export const auth = {
   logout: (refresh) => api.post('/auth/logout/', { refresh }),
   register: (payload) => api.post('/auth/register/', payload),
   me: () => api.get('/auth/me/'),
+  changePassword: (payload) => api.post('/auth/me/password/', payload),
+  uploadAvatar: (file) => {
+    const form = new FormData()
+    form.append('avatar', file)
+    return api.post('/auth/me/avatar/', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  removeAvatar: () => api.delete('/auth/me/avatar/'),
 }
 
 export const internships = {

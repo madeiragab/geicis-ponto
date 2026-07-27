@@ -3,6 +3,7 @@ import { Clock, LayoutDashboard, ListChecks, LogOut, Moon, Settings, Sun, Trophy
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../hooks/useTheme'
 import { cn } from './ui'
+import { Avatar } from './Ranking'
 
 function NavItem({ to, icon: Icon, children }) {
   return (
@@ -74,6 +75,10 @@ export default function Layout() {
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
+          <NavLink to="/perfil" title={user?.full_name} className="ml-1 shrink-0">
+            <Avatar src={user?.avatar_url} name={user?.full_name} size={28} />
+          </NavLink>
+
           <button
             onClick={handleLogout}
             className="rounded-xl p-2 muted transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"

@@ -98,6 +98,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -160,6 +161,9 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 # An entry open for longer than this is flagged as stale. Never auto-closed —
 # that would write hours nobody worked into a record meant to prove hours worked.
 STALE_ENTRY_HOURS = int(os.getenv('STALE_ENTRY_HOURS', '16'))
+
+# Avatar uploads
+MAX_AVATAR_SIZE_MB = 5
 
 # Production hardening
 if not DEBUG:

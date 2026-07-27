@@ -3,7 +3,7 @@ import { Trophy } from 'lucide-react'
 import { apiError } from '../api/client'
 import { internships as internshipsApi, ranking as rankingApi } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
-import { RankingPodium, RankingTable } from '../components/Ranking'
+import { RankingChart, RankingTable } from '../components/Ranking'
 import { Card, CardTitle, Select, Skeleton, useToast } from '../components/ui'
 
 export default function Ranking() {
@@ -76,16 +76,15 @@ export default function Ranking() {
 
       {loading ? (
         <>
-          <Skeleton className="h-48 w-full" />
           <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-48 w-full" />
         </>
       ) : (
         <>
-          {rows.length >= 3 && (
-            <Card className="pt-8">
-              <RankingPodium rows={rows} meId={meId} />
-            </Card>
-          )}
+          <Card>
+            <CardTitle>Horas por aluno</CardTitle>
+            <RankingChart rows={rows} meId={meId} />
+          </Card>
 
           <Card>
             <CardTitle>Classificação completa</CardTitle>

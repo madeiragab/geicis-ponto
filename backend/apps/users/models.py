@@ -25,6 +25,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField('e-mail', unique=True)
     full_name = models.CharField('nome completo', max_length=150)
     role = models.CharField('papel', max_length=16, choices=Role.choices, default=Role.STUDENT)
+    avatar = models.ImageField('foto', upload_to='avatars/', null=True, blank=True)
     is_active = models.BooleanField('ativo', default=True)
     is_staff = models.BooleanField('acesso ao admin', default=False)
     date_joined = models.DateTimeField('cadastrado em', default=timezone.now)
@@ -41,6 +42,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.full_name} <{self.email}>'
+
+    def avatar_url(self, request=None):
+        """The uploaded photo, or the shared default — never neither.
+
+        Every user gets a picture in the ranking chart whether or not they ever
+        set one, so the frontend never has to special-case a missing avatar.
+        """
+        from django.conf import settings
+        from django.templatetags.static import static
+
+        url = self.avatar.url if self.avatar else static('img/default-avatar.svg')
+        return request.build_absolute_uri(url) if request else url
 
     @property
     def is_student(self):

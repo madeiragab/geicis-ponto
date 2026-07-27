@@ -111,7 +111,7 @@ def build_student_summary(student, weeks_back=8):
     }
 
 
-def build_ranking(internship=None, professor=None, status=None, limit=None):
+def build_ranking(internship=None, professor=None, status=None, limit=None, request=None):
     """Ordered by total accumulated hours, descending.
 
     Absolute hours, not percentage of target: a group leaderboard is compared on
@@ -148,6 +148,7 @@ def build_ranking(internship=None, professor=None, status=None, limit=None):
             'position': position,
             'student_id': student.id,
             'full_name': student.user.full_name,
+            'avatar_url': student.user.avatar_url(request),
             'internship': student.internship.title if student.internship else None,
             'total_hours': total,
             'current_week_hours': hours(student.week_duration),

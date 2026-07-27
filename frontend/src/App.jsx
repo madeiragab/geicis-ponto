@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Ranking from './pages/Ranking'
 import Entries from './pages/Entries'
 import AdminPanel from './pages/AdminPanel'
+import Profile from './pages/Profile'
 
 function Splash() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/ranking" element={<Ranking />} />
               <Route path="/registros" element={<Entries />} />
+              <Route path="/perfil" element={<Profile />} />
               <Route
                 path="/coordenacao"
                 element={
