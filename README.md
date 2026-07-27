@@ -1,5 +1,7 @@
 # GEICIS Ponto
 
+🇧🇷 [Português](README.pt-BR.md) | 🇺🇸 **English**
+
 Internship time-tracking system for **GEICIS — Grupo de Estudos em Infraestrutura
 Computacional e Impacto Social**.
 

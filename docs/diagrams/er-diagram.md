@@ -1,5 +1,7 @@
 # Entity–Relationship Diagram
 
+🇧🇷 [Português](../pt-br/diagrams/er-diagram.md) | 🇺🇸 **English**
+
 Relational schema. Field-level rules are in [../data-model.md](../data-model.md).
 
 ```mermaid

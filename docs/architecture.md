@@ -1,5 +1,7 @@
 # Architecture Overview
 
+🇧🇷 [Português](pt-br/architecture.md) | 🇺🇸 **English**
+
 GEICIS Ponto is a web system for tracking internship hours. It was designed
 before implementation so that the domain model, the business rules, and the API
 contract are all decided in writing rather than discovered while coding.

@@ -1,5 +1,7 @@
 # Class Diagram
 
+🇧🇷 [Português](../pt-br/diagrams/class-diagram.md) | 🇺🇸 **English**
+
 Domain classes with the behaviour attached to them. Persisted fields are in
 [../data-model.md](../data-model.md); this diagram is about where logic lives.
 

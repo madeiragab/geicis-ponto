@@ -1,5 +1,7 @@
 # Business Rules
 
+🇧🇷 [Português](pt-br/business-rules.md) | 🇺🇸 **English**
+
 Every rule listed here is enforced by the backend. The frontend may mirror some
 of them for responsiveness, but the API is the authority.
 
