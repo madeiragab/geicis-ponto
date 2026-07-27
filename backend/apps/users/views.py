@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +18,8 @@ from config.exceptions import (
 from apps.users.models import ProfessorProfile, StudentProfile, Supervision, User
 from apps.users.permissions import IsCoordinator, can_view_student
 from apps.users.serializers import (
+    AvatarUploadSerializer,
+    ChangePasswordSerializer,
     ProfessorProfileSerializer,
     RegisterSerializer,
     StaffCreateSerializer,
@@ -38,7 +41,7 @@ class GeicisTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['user'] = UserSerializer(self.user).data
+        data['user'] = UserSerializer(self.user, context=self.context).data
         return data
 
 
@@ -78,18 +81,24 @@ class RegisterView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         return Response(
-            StudentProfileSerializer(profile).data, status=status.HTTP_201_CREATED
+            StudentProfileSerializer(profile, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
         )
 
 
 class MeView(APIView):
     def get(self, request):
         user = request.user
-        data = UserSerializer(user).data
+        ctx = {'request': request}
+        data = UserSerializer(user, context=ctx).data
         if user.is_student and hasattr(user, 'student_profile'):
-            data['student_profile'] = StudentProfileSerializer(user.student_profile).data
+            data['student_profile'] = StudentProfileSerializer(
+                user.student_profile, context=ctx
+            ).data
         elif user.is_professor and hasattr(user, 'professor_profile'):
-            data['professor_profile'] = ProfessorProfileSerializer(user.professor_profile).data
+            data['professor_profile'] = ProfessorProfileSerializer(
+                user.professor_profile, context=ctx
+            ).data
         return Response(data)
 
 
@@ -101,7 +110,47 @@ class StaffCreateView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        return Response(
+            UserSerializer(user, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class ChangePasswordView(GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.get_serializer(
+            data=request.data, context={'user': request.user}
+        )
+        serializer.is_valid(raise_exception=True)
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save(update_fields=['password'])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AvatarUploadView(GenericAPIView):
+    serializer_class = AvatarUploadSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old = request.user.avatar
+        request.user.avatar = serializer.validated_data['avatar']
+        request.user.save(update_fields=['avatar'])
+        if old:
+            old.delete(save=False)
+
+        return Response(UserSerializer(request.user, context={'request': request}).data)
+
+    def delete(self, request):
+        if request.user.avatar:
+            request.user.avatar.delete(save=True)
+        return Response(UserSerializer(request.user, context={'request': request}).data)
 
 
 class StudentViewSet(
@@ -180,7 +229,9 @@ class StudentViewSet(
     def professors(self, request, pk=None):
         student = self.get_object()
         professors = ProfessorProfile.objects.filter(supervisions__student=student).distinct()
-        return Response(ProfessorProfileSerializer(professors, many=True).data)
+        return Response(
+            ProfessorProfileSerializer(professors, many=True, context={'request': request}).data
+        )
 
 
 class ProfessorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -196,7 +247,9 @@ class ProfessorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
             .with_total_hours()
             .distinct()
         )
-        return Response(StudentProfileSerializer(students, many=True).data)
+        return Response(
+            StudentProfileSerializer(students, many=True, context={'request': request}).data
+        )
 
 
 class SupervisionViewSet(

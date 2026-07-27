@@ -551,3 +551,75 @@ class LoginThrottleTests(TestCase):
         )
         self.assertEqual(res.status_code, 429)
         self.assertEqual(res.data['error']['code'], 'THROTTLED')
+
+
+@override_settings(PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+class AvatarAndPasswordTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+        self.student = make_student('avatar@geicis.br', 'Aluno Avatar')
+
+    def auth(self, email='avatar@geicis.br', password='SenhaForte!2026'):
+        res = self.client.post('/api/auth/token/', {'email': email, 'password': password}, format='json')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {res.data["access"]}')
+
+    def test_every_user_has_an_avatar_url_even_without_uploading_one(self):
+        self.auth()
+        res = self.client.get('/api/auth/me/')
+        self.assertTrue(res.data['avatar_url'])
+        self.assertIn('default-avatar', res.data['avatar_url'])
+
+    def test_ranking_rows_carry_an_avatar_url(self):
+        log_hours(self.student, 3, days_ago=0)
+        self.auth()
+        res = self.client.get('/api/ranking/')
+        self.assertTrue(res.data['results'][0]['avatar_url'])
+
+    def test_uploading_an_avatar_replaces_the_default(self):
+        from io import BytesIO
+        from PIL import Image
+
+        buf = BytesIO()
+        Image.new('RGB', (10, 10), 'red').save(buf, format='PNG')
+        buf.seek(0)
+        buf.name = 'foto.png'
+
+        self.auth()
+        res = self.client.post('/api/auth/me/avatar/', {'avatar': buf}, format='multipart')
+        self.assertEqual(res.status_code, 200, res.data)
+        self.assertIn('avatars/', res.data['avatar_url'])
+        self.assertNotIn('default-avatar', res.data['avatar_url'])
+
+    def test_change_password_requires_the_current_one(self):
+        self.auth()
+        res = self.client.post('/api/auth/me/password/', {
+            'current_password': 'senhaerrada',
+            'new_password': 'NovaSenhaForte!2026',
+            'new_password_confirm': 'NovaSenhaForte!2026',
+        }, format='json')
+        self.assertEqual(res.status_code, 400)
+
+    def test_change_password_succeeds_and_the_new_one_logs_in(self):
+        self.auth()
+        res = self.client.post('/api/auth/me/password/', {
+            'current_password': 'SenhaForte!2026',
+            'new_password': 'NovaSenhaForte!2026',
+            'new_password_confirm': 'NovaSenhaForte!2026',
+        }, format='json')
+        self.assertEqual(res.status_code, 204)
+
+        self.client.credentials()
+        res = self.client.post('/api/auth/token/', {
+            'email': 'avatar@geicis.br', 'password': 'NovaSenhaForte!2026',
+        }, format='json')
+        self.assertEqual(res.status_code, 200)
+
+    def test_change_password_rejects_mismatched_confirmation(self):
+        self.auth()
+        res = self.client.post('/api/auth/me/password/', {
+            'current_password': 'SenhaForte!2026',
+            'new_password': 'NovaSenhaForte!2026',
+            'new_password_confirm': 'Diferente!2026',
+        }, format='json')
+        self.assertEqual(res.status_code, 400)

@@ -1,6 +1,8 @@
 from django.urls import path
 
 from apps.users.views import (
+    AvatarUploadView,
+    ChangePasswordView,
     GeicisTokenObtainPairView,
     GeicisTokenRefreshView,
     LogoutView,
@@ -14,4 +16,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
     path('me/', MeView.as_view(), name='me'),
+    path('me/avatar/', AvatarUploadView.as_view(), name='avatar-upload'),
+    path('me/password/', ChangePasswordView.as_view(), name='change-password'),
 ]

@@ -7,10 +7,46 @@ from apps.users.models import ProfessorProfile, StudentProfile, Supervision, Use
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'full_name', 'role', 'is_active', 'date_joined']
+        fields = ['id', 'email', 'full_name', 'role', 'avatar_url', 'is_active', 'date_joined']
         read_only_fields = fields
+
+    def get_avatar_url(self, obj):
+        return obj.avatar_url(self.context.get('request'))
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    def validate_current_password(self, value):
+        if not self.context['user'].check_password(value):
+            raise serializers.ValidationError('Senha atual incorreta.')
+        return value
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({'new_password_confirm': 'As senhas não conferem.'})
+        validate_password(attrs['new_password'], user=self.context['user'])
+        return attrs
+
+
+class AvatarUploadSerializer(serializers.Serializer):
+    avatar = serializers.ImageField()
+
+    def validate_avatar(self, value):
+        from django.conf import settings
+
+        max_bytes = settings.MAX_AVATAR_SIZE_MB * 1024 * 1024
+        if value.size > max_bytes:
+            raise serializers.ValidationError(
+                f'A imagem precisa ter até {settings.MAX_AVATAR_SIZE_MB}MB.'
+            )
+        return value
 
 
 class InternshipBriefSerializer(serializers.ModelSerializer):

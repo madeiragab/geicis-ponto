@@ -1,63 +1,106 @@
-import { Crown, Medal } from 'lucide-react'
+import { useState } from 'react'
+import { Crown } from 'lucide-react'
 import { cn } from './ui'
 
-function initials(name = '') {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase()
+export function Avatar({ src, name, size = 36, ring = false, className }) {
+  return (
+    <img
+      src={src}
+      alt={name}
+      title={name}
+      width={size}
+      height={size}
+      className={cn(
+        'shrink-0 rounded-full object-cover bg-slate-200 dark:bg-slate-800',
+        ring && 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950',
+        className,
+      )}
+      style={{ width: size, height: size }}
+    />
+  )
 }
 
-const PODIUM_STYLES = [
-  { order: 'order-2', height: 'h-28', ring: 'ring-amber-400', chip: 'bg-amber-400 text-amber-950' },
-  { order: 'order-1', height: 'h-20', ring: 'ring-slate-400', chip: 'bg-slate-300 text-slate-800' },
-  { order: 'order-3', height: 'h-16', ring: 'ring-orange-400', chip: 'bg-orange-300 text-orange-950' },
-]
+/**
+ * The ranking as a chart: one horizontal bar per student, magnitude encoded by
+ * length (total hours), identity encoded by the student's own photo rather
+ * than by color — so the bar fill stays a single flat hue and "you" is
+ * highlighted through a ring on the avatar, not a different color per rank.
+ */
+export function RankingChart({ rows = [], meId }) {
+  const [hovered, setHovered] = useState(null)
+  if (rows.length === 0) {
+    return <p className="py-8 text-center text-sm muted">Nenhum aluno no ranking ainda.</p>
+  }
 
-export function RankingPodium({ rows = [], meId }) {
-  if (rows.length === 0) return null
-  const top = rows.slice(0, 3)
-  // Visual order is 2nd, 1st, 3rd — first place raised in the middle.
-  const arranged = [top[1], top[0], top[2]].filter(Boolean)
+  const max = Math.max(...rows.map((r) => Number(r.total_hours) || 0), 1)
 
   return (
-    <div className="flex items-end justify-center gap-3 sm:gap-6">
-      {arranged.map((row) => {
-        const rank = top.indexOf(row)
-        const style = PODIUM_STYLES[rank]
+    <div className="space-y-1">
+      {rows.map((row, index) => {
         const isMe = row.student_id === meId
+        const total = Number(row.total_hours) || 0
+        const pct = Math.min(100, Number(row.completion_percentage) || 0)
+        const widthPct = Math.max(3, (total / max) * 100)
+        const isTop = row.position === 1
+        const isHovered = hovered === row.student_id
+
         return (
           <div
             key={row.student_id}
-            className={cn('flex flex-1 flex-col items-center animate-fade-up', style.order)}
-            style={{ animationDelay: `${rank * 80}ms` }}
+            className={cn(
+              'group relative flex animate-fade-up items-center gap-3 rounded-xl px-2 py-1.5 transition-colors',
+              isMe && 'bg-indigo-50/70 dark:bg-indigo-500/10',
+            )}
+            style={{ animationDelay: `${Math.min(index, 14) * 30}ms` }}
+            onMouseEnter={() => setHovered(row.student_id)}
+            onMouseLeave={() => setHovered((h) => (h === row.student_id ? null : h))}
           >
-            <div
-              className={cn(
-                'mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-lg font-bold ring-4 dark:bg-slate-800',
-                style.ring,
+            <span className="tabular w-6 shrink-0 text-right text-xs font-semibold muted">
+              {row.position}º
+            </span>
+
+            <div className="relative shrink-0">
+              <Avatar src={row.avatar_url} name={row.full_name} size={36} ring={isMe} />
+              {isTop && (
+                <Crown
+                  size={14}
+                  className="absolute -right-1 -top-1.5 rotate-12 text-amber-500 drop-shadow"
+                  fill="currentColor"
+                />
               )}
-            >
-              {initials(row.full_name)}
             </div>
-            <p className="max-w-[7rem] truncate text-center text-sm font-semibold" title={row.full_name}>
-              {row.full_name}
-              {isMe && <span className="ml-1 text-indigo-500">(você)</span>}
-            </p>
-            <p className="tabular text-xs muted">{Number(row.total_hours).toFixed(1)}h</p>
-            <div
-              className={cn(
-                'mt-2 flex w-full items-start justify-center rounded-t-xl pt-2 font-bold',
-                style.height,
-                style.chip,
-              )}
-            >
-              {rank === 0 ? <Crown size={20} /> : <Medal size={18} />}
-              <span className="ml-1">{row.position}º</span>
+
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-baseline justify-between gap-2">
+                <span className="truncate text-sm font-medium">
+                  {row.full_name}
+                  {isMe && <span className="ml-1 text-xs text-indigo-500">(você)</span>}
+                </span>
+                <span className="tabular shrink-0 text-sm font-semibold">
+                  {total.toFixed(1)}h
+                </span>
+              </div>
+              {/* Thin mark, rounded ends, single flat hue — length is the only
+                  encoding of magnitude here. */}
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-[width] duration-700 ease-out',
+                    isMe ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-indigo-400 dark:bg-indigo-500/70',
+                  )}
+                  style={{ width: `${widthPct}%` }}
+                />
+              </div>
             </div>
+
+            {isHovered && (
+              <div className="pointer-events-none absolute left-14 top-full z-10 mt-1 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs shadow-lg dark:border-slate-700 dark:bg-slate-900">
+                <p className="font-medium">{row.internship || 'Sem estágio'}</p>
+                <p className="tabular muted">
+                  {Number(row.current_week_hours).toFixed(1)}h esta semana · {pct.toFixed(0)}% da meta
+                </p>
+              </div>
+            )}
           </div>
         )
       })}
@@ -94,13 +137,18 @@ export function RankingTable({ rows = [], meId }) {
               >
                 <td className="tabular py-2.5 font-semibold">{row.position}º</td>
                 <td className="py-2.5 font-medium">
-                  {row.full_name}
-                  {isMe && <span className="ml-1 text-xs text-indigo-500">(você)</span>}
-                  {row.status === 'COMPLETED' && (
-                    <span className="ml-2 text-xs text-emerald-600 dark:text-emerald-400">
-                      concluído
+                  <div className="flex items-center gap-2">
+                    <Avatar src={row.avatar_url} name={row.full_name} size={24} />
+                    <span className="truncate">
+                      {row.full_name}
+                      {isMe && <span className="ml-1 text-xs text-indigo-500">(você)</span>}
+                      {row.status === 'COMPLETED' && (
+                        <span className="ml-2 text-xs text-emerald-600 dark:text-emerald-400">
+                          concluído
+                        </span>
+                      )}
                     </span>
-                  )}
+                  </div>
                 </td>
                 <td className="hidden max-w-[12rem] truncate py-2.5 muted sm:table-cell">
                   {row.internship || '—'}

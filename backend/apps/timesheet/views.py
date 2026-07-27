@@ -170,6 +170,7 @@ class RankingView(APIView):
             professor=params.get('professor'),
             status=params.get('status'),
             limit=int(limit) if limit and limit.isdigit() else None,
+            request=request,
         )
         from django.utils import timezone
 
@@ -205,7 +206,7 @@ class DashboardView(APIView):
             and s.current_week_hours < s.weekly_minimum_hours
         ]
 
-        ranking = build_ranking(limit=5)
+        ranking = build_ranking(limit=5, request=request)
         total = sum((row['total_hours'] for row in build_ranking()), start=0)
 
         return Response({
