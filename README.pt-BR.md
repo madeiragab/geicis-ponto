@@ -2,6 +2,8 @@
 
 🇧🇷 **Português** | 🇺🇸 [English](README.md)
 
+[![ci](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml)
+
 Sistema de controle de horas de estágio para o **GEICIS — Grupo de Estudos em
 Infraestrutura Computacional e Impacto Social**.
 
@@ -11,9 +13,10 @@ manda e-mail pra quem não bater o mínimo semanal toda sexta-feira às 23:59.
 ## Status
 
 **Funcionando.** Backend e frontend estão implementados de acordo com o design
-abaixo, com 58 testes de backend passando. O modelo de domínio e o contrato da
-API foram fechados em `docs/` antes de qualquer código ser escrito, então a
-implementação não teve nada pra adivinhar.
+abaixo, com 58 testes de backend passando — [rodados pelo CI a cada push](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml),
+junto com uma checagem de que nenhuma mudança de modelo ficou sem migração. O
+modelo de domínio e o contrato da API foram fechados em `docs/` antes de
+qualquer código ser escrito, então a implementação não teve nada pra adivinhar.
 
 ## Rodando localmente
 

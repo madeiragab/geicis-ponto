@@ -2,6 +2,8 @@
 
 🇧🇷 [Português](README.pt-BR.md) | 🇺🇸 **English**
 
+[![ci](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml)
+
 Internship time-tracking system for **GEICIS — Grupo de Estudos em Infraestrutura
 Computacional e Impacto Social**.
 
@@ -11,8 +13,10 @@ and emails whoever falls short of the weekly minimum every Friday at 23:59.
 ## Status
 
 **Working.** Backend and frontend are implemented against the design below, with
-52 passing backend tests. The domain model and the API contract were settled in
-`docs/` before any code was written, so implementation had nothing left to guess.
+58 passing backend tests — [run by CI on every push](https://github.com/madeiragab/geicis-ponto/actions/workflows/ci.yml),
+alongside a check that no model change is missing its migration. The domain model
+and the API contract were settled in `docs/` before any code was written, so
+implementation had nothing left to guess.
 
 ## Running it locally
 

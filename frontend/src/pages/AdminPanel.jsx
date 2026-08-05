@@ -1,32 +1,25 @@
 import { useEffect, useState } from 'react'
 import { AlertTriangle, Clock, Mail, PlayCircle, Users } from 'lucide-react'
 import { apiError } from '../api/client'
-import { dashboard, internships as internshipsApi, weeklyAlerts } from '../api/endpoints'
+import { dashboard, weeklyAlerts } from '../api/endpoints'
 import StatCard from '../components/StatCard'
+import InternshipsCard from '../components/InternshipsCard'
+import StudentsCard from '../components/StudentsCard'
 import { RankingTable } from '../components/Ranking'
-import { Badge, Button, Card, CardTitle, Field, Input, Modal, Skeleton, useToast } from '../components/ui'
+import { Badge, Card, CardTitle, Skeleton, useToast } from '../components/ui'
 
 export default function AdminPanel() {
   const { push } = useToast()
   const [data, setData] = useState(null)
   const [alerts, setAlerts] = useState([])
-  const [list, setList] = useState([])
   const [loading, setLoading] = useState(true)
-  const [creating, setCreating] = useState(false)
-  const [draft, setDraft] = useState({ title: '', organization: '', supervisor_name: '', supervisor_email: '' })
-  const [saving, setSaving] = useState(false)
 
   async function loadAll() {
     setLoading(true)
     try {
-      const [dashRes, alertRes, listRes] = await Promise.all([
-        dashboard.get(),
-        weeklyAlerts.list(),
-        internshipsApi.list(),
-      ])
+      const [dashRes, alertRes] = await Promise.all([dashboard.get(), weeklyAlerts.list()])
       setData(dashRes.data)
       setAlerts(alertRes.data.results ?? [])
-      setList(listRes.data.results ?? [])
     } catch (err) {
       push(apiError(err).message, 'error')
     } finally {
@@ -38,22 +31,6 @@ export default function AdminPanel() {
     loadAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  async function createInternship(event) {
-    event.preventDefault()
-    setSaving(true)
-    try {
-      await internshipsApi.create(draft)
-      push('Estágio criado.', 'success')
-      setCreating(false)
-      setDraft({ title: '', organization: '', supervisor_name: '', supervisor_email: '' })
-      loadAll()
-    } catch (err) {
-      push(apiError(err).message, 'error')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -150,33 +127,9 @@ export default function AdminPanel() {
         <RankingTable rows={data?.top_five ?? []} />
       </Card>
 
-      <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <CardTitle className="mb-0">Estágios</CardTitle>
-          <Button size="sm" onClick={() => setCreating(true)}>
-            Novo estágio
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {list.map((internship) => (
-            <div key={internship.id} className="flex items-center gap-2 text-sm">
-              <div className="flex-1">
-                <p className="font-medium">{internship.title}</p>
-                <p className="text-xs muted">{internship.organization}</p>
-              </div>
-              <Badge tone={internship.is_active ? 'running' : 'neutral'}>
-                {internship.is_active ? 'ativo' : 'inativo'}
-              </Badge>
-              <span className="tabular w-16 text-right text-xs muted">
-                {internship.student_count} aluno(s)
-              </span>
-            </div>
-          ))}
-          {list.length === 0 && (
-            <p className="py-4 text-center text-sm muted">Nenhum estágio cadastrado.</p>
-          )}
-        </div>
-      </Card>
+      <InternshipsCard onChanged={loadAll} />
+
+      <StudentsCard onChanged={loadAll} />
 
       <Card>
         <CardTitle>
@@ -210,47 +163,6 @@ export default function AdminPanel() {
         )}
       </Card>
 
-      <Modal open={creating} onClose={() => setCreating(false)} title="Novo estágio">
-        <form onSubmit={createInternship} className="space-y-4">
-          <Field label="Título">
-            <Input
-              value={draft.title}
-              onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-              placeholder="Infraestrutura de Redes"
-              required
-            />
-          </Field>
-          <Field label="Instituição">
-            <Input
-              value={draft.organization}
-              onChange={(e) => setDraft((d) => ({ ...d, organization: e.target.value }))}
-              placeholder="TRE-PE"
-              required
-            />
-          </Field>
-          <Field label="Supervisor">
-            <Input
-              value={draft.supervisor_name}
-              onChange={(e) => setDraft((d) => ({ ...d, supervisor_name: e.target.value }))}
-            />
-          </Field>
-          <Field label="E-mail do supervisor">
-            <Input
-              type="email"
-              value={draft.supervisor_email}
-              onChange={(e) => setDraft((d) => ({ ...d, supervisor_email: e.target.value }))}
-            />
-          </Field>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => setCreating(false)} className="flex-1">
-              Cancelar
-            </Button>
-            <Button type="submit" loading={saving} className="flex-1">
-              Criar
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   )
 }
