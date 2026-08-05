@@ -5,9 +5,10 @@ env/
 .venv/
 __pycache__/
 
-# IDE
+# IDE e ferramentas de agente
 .vscode/
 .idea/
+.claude/
 
 # Environment variables
 .env
