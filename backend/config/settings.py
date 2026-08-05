@@ -67,8 +67,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('DB_NAME', str(BASE_DIR / 'db.sqlite3')),
+        'ENGINE': os.getenv('DB_ENGINE') or 'django.db.backends.sqlite3',
+        # `or` rather than a getenv default: .env.example ships DB_NAME empty,
+        # and an empty string is a value, so the default would never apply.
+        'NAME': os.getenv('DB_NAME') or str(BASE_DIR / 'db.sqlite3'),
         'USER': os.getenv('DB_USER', ''),
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', ''),
