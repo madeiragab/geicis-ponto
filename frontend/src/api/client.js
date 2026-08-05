@@ -89,6 +89,21 @@ api.interceptors.response.use(
   },
 )
 
+/**
+ * The `details` map flattened to one message per field, ready to hand to
+ * `<Field error>`. DRF reports each field as a list; forms only show the first.
+ */
+export function fieldErrors(error) {
+  const { details } = apiError(error)
+  const flat = {}
+  if (details && typeof details === 'object') {
+    for (const [key, value] of Object.entries(details)) {
+      flat[key] = Array.isArray(value) ? value[0] : String(value)
+    }
+  }
+  return flat
+}
+
 /** The uniform error envelope, unwrapped. `message` is safe to render. */
 export function apiError(error) {
   const payload = error?.response?.data?.error

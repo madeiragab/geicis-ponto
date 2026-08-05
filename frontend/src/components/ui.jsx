@@ -134,6 +134,10 @@ export function Select({ className, children, ...props }) {
   )
 }
 
+export function Textarea({ className, rows = 3, ...props }) {
+  return <textarea rows={rows} className={cn('field resize-y', className)} {...props} />
+}
+
 /* -------------------------------------------------------------- Skeleton */
 
 export function Skeleton({ className }) {
