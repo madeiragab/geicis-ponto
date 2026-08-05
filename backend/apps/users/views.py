@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Q
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
@@ -170,11 +171,24 @@ class StudentViewSet(
     }
 
     def get_queryset(self):
-        return (
+        qs = (
             StudentProfile.objects.select_related('user', 'internship')
             .with_total_hours()
             .all()
         )
+        # Same filter pair the internship list exposes, so the coordination
+        # screen can find one student without paging through everyone.
+        search = self.request.query_params.get('search')
+        if search:
+            qs = qs.filter(
+                Q(user__full_name__icontains=search)
+                | Q(user__email__icontains=search)
+                | Q(registration_number__icontains=search)
+            )
+        internship = self.request.query_params.get('internship')
+        if internship:
+            qs = qs.filter(internship_id=internship)
+        return qs
 
     def update(self, request, *args, **kwargs):
         # Authorization runs before validation on purpose. Checking it in
