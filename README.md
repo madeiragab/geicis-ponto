@@ -18,6 +18,13 @@ alongside a check that no model change is missing its migration. The domain mode
 and the API contract were settled in `docs/` before any code was written, so
 implementation had nothing left to guess.
 
+**Not in production yet.** The system was specified with GEICIS — the
+requirements, the rules and the API contract came from a real group, with real
+people who will clock in on it — but deploying it depends on the campus IT
+department, and that request only goes out once the funding arrives. This is not
+an exercise waiting for an imaginary user; it is finished software waiting on an
+institutional process, which is where software usually waits.
+
 ## Running it locally
 
 Backend — Django on `:8000`:

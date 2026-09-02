@@ -18,6 +18,13 @@ junto com uma checagem de que nenhuma mudança de modelo ficou sem migração. O
 modelo de domínio e o contrato da API foram fechados em `docs/` antes de
 qualquer código ser escrito, então a implementação não teve nada pra adivinhar.
 
+**Ainda não está em produção.** O sistema foi especificado com o GEICIS —
+requisitos, regras e contrato da API vieram de um grupo real, com pessoas que
+vão bater o ponto nele —, mas a implantação depende do NTI do campus, e o
+pedido só sai quando a verba entrar. Não é um projeto de exercício esperando
+usuário imaginário; é software pronto parado num processo institucional, que é
+onde software costuma esperar.
+
 ## Rodando localmente
 
 Backend — Django na porta `:8000`:
